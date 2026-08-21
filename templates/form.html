@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multicloud DevOps by Veera Naresh IT</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to left, #586975, #a48a93);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 120vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 20px 100px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            background-repeat: round;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.8em;
+            background: linear-gradient(to right, #ff0303, #00c6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+            margin-bottom: auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #14b4d4;
+            background-color: #f0f4ff;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            margin-top: 25px;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #007bff, #0056b3);
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #0056b3, #004494);
+        }
+
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .approved {
+            color: #28a745;
+        }
+
+        .denied {
+            color: #dc3545;
+        }
+
+        .error {
+            color: #ff9800;
+            border: 1px solid #ff9800;
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Loan Prediction MLOPS, AIOPS and CloudOps& Multicloud DevOps by Veera Naresh IT</h2>
+    <form id="loanForm">
+        <label for="age">Age:</label>
+        <input type="number" name="age" required>
+
+        <label for="income">Income:</label>
+        <input type="number" name="income" required>
+
+        <label for="no">no:</label>
+        <input type="number" name="no" required>
+
+        <label for="loan_amount">Loan Amount:</label>
+        <input type="number" name="loan_amount" required>
+
+        <label for="loan_term">Loan Term (months):</label>
+        <input type="number" name="loan_term" required>
+
+        <label for="credit_score">Credit Score:</label>
+        <input type="number" name="credit_score" required>
+
+        <label for="gender">Gender:</label>
+        <select name="gender" required>
+            <option value="" disabled selected>Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+
+        <label for="married">Married:</label>
+        <select name="married" required>
+            <option value="" disabled selected>Select Marital Status</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+
+        <button type="submit">Check Loan Status</button>
+    </form>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    const form = document.getElementById("loanForm");
+    const resultDiv = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        resultDiv.textContent = "";
+        resultDiv.className = "result";
+
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = isNaN(value) ? value : Number(value);
+        });
+
+        try {
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            // ✅ Show backend model/feature errors clearly
+            if (result.error) {
+                resultDiv.textContent = "⚠ " + result.error;
+                resultDiv.classList.add("error");
+                return;
+            }
+
+            // ✅ Approved / Denied cases
+            if (result.prediction === "approved") {
+                resultDiv.textContent = "✅ Loan Status: APPROVED";
+                resultDiv.classList.add("approved");
+            } else if (result.prediction === "denied") {
+                resultDiv.textContent = "❌ Loan Status: DENIED";
+                resultDiv.classList.add("denied");
+            } else {
+                resultDiv.textContent = "⚠ Unexpected response format.";
+                resultDiv.classList.add("error");
+            }
+        } catch (err) {
+            resultDiv.textContent = "⚠ Error: " + err.message;
+            resultDiv.classList.add("error");
+        }
+    });
+</script>
+</body>
+</html>
